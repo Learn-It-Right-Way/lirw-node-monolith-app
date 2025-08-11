@@ -116,3 +116,27 @@ aws ecr delete-repository \
       --force \
       --region <region>
 ```
+
+## Building and Pushing a Multi-Platform Docker Image to Amazon ECR
+1. Create and Set Buildx Builder
+```bash
+docker buildx create --use
+```
+
+2. Initialize Buildx Builder
+```bash
+docker buildx inspect --bootstrap
+```
+
+3. Build Docker Image for ECS
+```bash
+docker buildx build \
+  --platform linux/amd64 \
+  -t <aws_account_id>.dkr.ecr.<region>.amazonaws.com/<repository-name>:latest \
+  --load .
+```
+
+4. Push Docker Image to Amazon ECR
+```bash
+docker push <aws_account_id>.dkr.ecr.<region>.amazonaws.com/<repository-name>:latest
+```

@@ -43,3 +43,76 @@ which aws
 ```bash
 aws --version
 ```
+
+## Local Docker Workflow
+1. Build docker image
+```bash
+docker build -t node-monolith-app .
+```
+2. Run Docker image
+```bash
+docker run -p 3200:3200 node-monolith-app
+```
+
+## Configure AWS CLI for IAM user
+1. Set your configuration settings
+```bash
+aws configure
+```
+2. To check if the CLI configuration was successful
+```bash
+aws ecr describe-repositories
+```
+
+## Create a repository
+```bash
+aws ecr create-repository \
+    --repository-name <repository-name> \
+    --region <region>
+```
+
+## Authenticate to your default registry
+```bash
+aws ecr get-login-password --region <region> | docker login --username AWS --password-stdin <aws_account_id>.dkr.ecr.<region>.amazonaws.com
+```
+
+## Tag the image
+```bash
+docker tag <image-name>:latest <aws_account_id>.dkr.ecr.<region>.amazonaws.com/<repository-name>
+```
+
+## Push the image
+```bash
+docker push <aws_account_id>.dkr.ecr.<region>.amazonaws.com/<repository-name>:latest
+```
+
+## Pull an image from Amazon ECR
+```bash
+docker pull <aws_account_id>.dkr.ecr.<region>.amazonaws.com/<repository-name>:latest
+```
+
+## List images
+```bash
+aws ecr list-images --repository-name <repository-name> --region <region>
+```
+
+## Delete an image
+```bash
+aws ecr batch-delete-image \
+      --repository-name <repository-name> \
+      --image-ids imageTag=latest \
+      --region <region>
+```
+
+## List repositories
+```bash
+aws ecr describe-repositories 
+```
+
+## Delete a repository
+```bash
+aws ecr delete-repository \
+      --repository-name <repository-name> \
+      --force \
+      --region <region>
+```

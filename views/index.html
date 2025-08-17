@@ -8,8 +8,85 @@
 </head>
 <body>
   <div class="container">
-    <h1>🚀 Node.js Monolith App!</h1>
-    <p>This is a simple Express app serving HTML content.</p>
+    <h1>📚 Book Search</h1>
+    <input type="text" id="search" placeholder="Search books..." />
+    <button onclick="searchBooks()">Search</button>
   </div>
+
+  <div id="spinner" class="spinner-container">
+    <div class="spinner"></div>
+    <p>Searching for books...</p>
+  </div>
+
+  <div id="no-results" class="no-results">
+    <p>😔 No books found for your search.</p>
+  </div>
+
+  <div id="error" class="error-card">
+    <p>⚠️ Error fetching books. Please try again later.</p>
+  </div>
+
+  <div id="results"></div>
+
+  <script>
+    const resultsEl = document.getElementById("results");
+    const spinnerEl = document.getElementById("spinner");
+    const noResultsEl = document.getElementById("no-results");
+    const errorEl = document.getElementById("error");
+
+    async function searchBooks() {
+      const search = document.getElementById("search").value.trim();
+      resetStates();
+
+      if (!search) {
+        errorEl.textContent = "⚠️ Please enter a search term!";
+        errorEl.classList.add("active");
+        return;
+      }
+
+      spinnerEl.classList.add("active");
+
+      try {
+        const res = await fetch(`/books/search?search=${encodeURIComponent(search)}`);
+        const data = await res.json();
+
+        spinnerEl.classList.remove("active");
+
+        if (data.count === 0) {
+          noResultsEl.classList.add("active");
+          return;
+        }
+
+        resultsEl.innerHTML = data.results.map(createBookCard).join("");
+
+      } catch (err) {
+        spinnerEl.classList.remove("active");
+        errorEl.classList.add("active");
+        console.error(err);
+      }
+    }
+
+    function createBookCard(book) {
+      return `
+        <div class="book-card">
+          <h3>${book.title}</h3>
+          <p><strong>Author:</strong> ${book.author}</p>
+          <p><strong>Release Date:</strong> ${book.published_date}</p>
+          <p><strong>Pages:</strong> ${book.pages}</p>
+          <p>${book.description}</p>
+        </div>
+      `;
+    }
+
+    function resetStates() {
+      spinnerEl.classList.remove("active");
+      noResultsEl.classList.remove("active");
+      errorEl.classList.remove("active");
+      resultsEl.innerHTML = "";
+    }
+
+  </script>
+</body>
+</html>
 </body>
 </html>

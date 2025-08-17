@@ -2,7 +2,10 @@
 Base Node.js monolith application built with Express.js, created primarily for the ECS video series to demonstrate various Amazon ECS features. Each branch corresponds to a specific ECS feature covered in the series, allowing step-by-step exploration alongside the videos.
 
 ## User Interface
+#### Home
 ![Home](./public/ss/home.png)
+#### Search
+![Search](./public/ss/search-result.png)
 
 ## Prerequisites 
 1. Install [HomeBrew](https://brew.sh/)

@@ -143,3 +143,11 @@ docker buildx build \
 ```bash
 docker push <aws_account_id>.dkr.ecr.<region>.amazonaws.com/<repository-name>:latest
 ```
+
+## High CPU Load Simulation
+```bash
+for i in {1..50}; do
+  (time curl "http://<ALB-DNS>/cpu-load" > /dev/null) 2>&1 | grep real &
+done
+wait
+```

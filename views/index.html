@@ -8,8 +8,49 @@
 </head>
 <body>
   <div class="container">
-    <h1>🚀 Node.js Monolith App!</h1>
-    <p>This is a simple Express app serving HTML content.</p>
+    <h1>⚡ ECS Load Balancing!</h1>
+    
+    <table>
+      <tr>
+        <td class="label">LAUNCH TYPE</td>
+        <td class="value" id="launchType">Loading...</td>
+      </tr>
+      <tr>
+        <td class="label">HOST NAME</td>
+        <td class="value" id="hostname">Loading...</td>
+      </tr>
+      <tr>
+        <td class="label">TASK ID</td>
+        <td class="value" id="taskId">Loading...</td>
+      </tr>
+      <tr>
+        <td class="label">INSTANCE ID</td>
+        <td class="value" id="instanceId">Loading...</td>
+      </tr>
+    </table>
   </div>
+
+  <script>
+    async function fetchMetadata() {
+      try {
+        const res = await fetch("/metadata");
+        const data = await res.json();
+
+        document.getElementById("launchType").textContent = data.launchType;
+        document.getElementById("instanceId").textContent = data.instanceId;
+        document.getElementById("taskId").textContent = data.taskId;
+        document.getElementById("hostname").textContent = data.hostname;
+      } catch (err) {
+        console.error("Error fetching metadata:", err);
+        document.getElementById("launchType").textContent = "Error";
+        document.getElementById("instanceId").textContent = "Error";
+        document.getElementById("taskId").textContent = "Error";
+        document.getElementById("hostname").textContent = "Error";
+      }
+    }
+
+    window.onload = fetchMetadata;
+  </script>
+
 </body>
 </html>

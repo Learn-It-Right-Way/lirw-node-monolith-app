@@ -16,3 +16,34 @@ body {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
+
+h1 {
+  margin-bottom: 40px;
+}
+
+table {
+  margin: 0 auto;
+  border-collapse: collapse;
+  min-width: 400px;
+}
+
+td {
+  padding: 12px 20px;
+  border-bottom: 1px solid #cccccc; /* bottom border for rows */
+}
+
+td.label {
+  background-color: #d3d3d3;
+  font-weight: bold;
+  text-transform: uppercase;
+  text-align: left;
+  width: 40%;
+}
+
+td.value {
+  background-color: #eaeaea;
+  text-transform: lowercase;
+  text-align: left;
+  width: 60%;
+  word-break: break-word;
+}

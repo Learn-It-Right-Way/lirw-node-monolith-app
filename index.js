@@ -20,6 +20,11 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'index.html'));
 });
 
+// Health check endpoint
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok", message: "Service is healthy", uptime: process.uptime() });
+});
+
 app.get("/metadata", async (req, res) => {
   let instanceId = "Unknown";
   let taskId = "Unknown";

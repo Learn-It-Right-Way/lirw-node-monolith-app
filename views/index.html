@@ -16,8 +16,8 @@
         <td class="value" id="launchType">Loading...</td>
       </tr>
       <tr>
-        <td class="label">HOST NAME</td>
-        <td class="value" id="hostname">Loading...</td>
+        <td class="label">OS PLATFORM</td>
+        <td class="value" id="osPlatform">Loading...</td>
       </tr>
       <tr>
         <td class="label">TASK ID</td>
@@ -39,13 +39,13 @@
         document.getElementById("launchType").textContent = data.launchType;
         document.getElementById("instanceId").textContent = data.instanceId;
         document.getElementById("taskId").textContent = data.taskId;
-        document.getElementById("hostname").textContent = data.hostname;
+        document.getElementById("osPlatform").textContent = data.osPlatform;
       } catch (err) {
         console.error("Error fetching metadata:", err);
         document.getElementById("launchType").textContent = "Error";
         document.getElementById("instanceId").textContent = "Error";
         document.getElementById("taskId").textContent = "Error";
-        document.getElementById("hostname").textContent = "Error";
+        document.getElementById("osPlatform").textContent = "Error";
       }
     }
 

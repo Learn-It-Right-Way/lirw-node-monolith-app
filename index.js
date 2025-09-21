@@ -12,7 +12,7 @@ const ECS_METADATA_URL = process.env.ECS_CONTAINER_METADATA_URI_V4 || process.en
 // AWS SDK client
 const ecs = new ECSClient({ region: process.env.AWS_REGION || "us-east-1" });
 
-const hostname = os.hostname() || "Unknown";
+const osPlatform = os.platform() || "Unknown";
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -74,7 +74,7 @@ app.get("/metadata", async (req, res) => {
       launchType,
       instanceId,
       taskId,
-      hostname,
+      osPlatform,
     });
 
   } catch (err) {

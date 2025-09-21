@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const os = require("os");
+const { ECSClient, DescribeTasksCommand, DescribeContainerInstancesCommand } = require("@aws-sdk/client-ecs");
 
 const app = express();
 const PORT = 3200;
@@ -8,8 +9,8 @@ const PORT = 3200;
 // ECS metadata endpoint (works in both Fargate & EC2)
 const ECS_METADATA_URL = process.env.ECS_CONTAINER_METADATA_URI_V4 || process.env.ECS_CONTAINER_METADATA_URI;
 
-// EC2 metadata endpoint (only available for EC2 launch type)
-const EC2_METADATA_URL = "http://169.254.169.254/latest/meta-data/instance-id";
+// AWS SDK client
+const ecs = new ECSClient({ region: process.env.AWS_REGION || "us-east-1" });
 
 const hostname = os.hostname() || "Unknown";
 
@@ -31,29 +32,42 @@ app.get("/metadata", async (req, res) => {
   let launchType = "local";
 
   try {
-    // Try ECS Task Metadata
+    // ECS Task Metadata
     if (ECS_METADATA_URL) {
-      launchType = "Fargate";
-
       const response = await fetch(`${ECS_METADATA_URL}/task`);
-      const data = await response.json();
+      const taskMeta = await response.json();
 
       // Extract ECS Task ID
-      if (data?.TaskARN) {
-        taskId = data.TaskARN.split("/").pop();
+      if (taskMeta?.TaskARN) {
+        taskId = taskMeta.TaskARN.split("/").pop();
       }
-    }
 
-    // Try EC2 Instance Metadata
-    try {
-      const response = await fetch(EC2_METADATA_URL, { timeout: 1000 });
-      if (response.ok) {
-        launchType = "EC2";
-        instanceId = await response.text();
+      launchType = taskMeta?.LaunchType || "Unknown"; // "EC2" or "FARGATE"
+
+      // If EC2 launch type -> resolve EC2 instance ID
+      if (taskMeta.LaunchType === "EC2") {
+        const cluster = taskMeta.Cluster;
+        const taskArn = taskMeta.TaskARN;
+
+        // Describe Task to get ContainerInstanceARN
+        const taskDesc = await ecs.send(
+          new DescribeTasksCommand({ cluster, tasks: [taskArn] })
+        );
+
+        const containerInstanceArn = taskDesc.tasks?.[0]?.containerInstanceArn;
+
+        if (containerInstanceArn) {
+          // Describe Container Instance to get EC2 Instance ID
+          const containerDesc = await ecs.send(
+            new DescribeContainerInstancesCommand({
+              cluster,
+              containerInstances: [containerInstanceArn],
+            })
+          );
+
+          instanceId = containerDesc.containerInstances?.[0]?.ec2InstanceId || "Unknown";
+        }
       }
-    } catch {
-      // No EC2 metadata
-      console.log("No EC2 metadata");
     }
 
     res.json({

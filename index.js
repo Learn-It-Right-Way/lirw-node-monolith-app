@@ -30,6 +30,7 @@ app.get("/metadata", async (req, res) => {
   let instanceId = "Unknown";
   let taskId = "Unknown";
   let launchType = "local";
+  let availabilityZone = "Unknown";
 
   try {
     // ECS Task Metadata
@@ -40,6 +41,10 @@ app.get("/metadata", async (req, res) => {
       // Extract ECS Task ID
       if (taskMeta?.TaskARN) {
         taskId = taskMeta.TaskARN.split("/").pop();
+      }
+
+      if (taskMeta?.AvailabilityZone) {
+        availabilityZone = taskMeta.AvailabilityZone;
       }
 
       launchType = taskMeta?.LaunchType || "Unknown"; // "EC2" or "FARGATE"
@@ -75,6 +80,7 @@ app.get("/metadata", async (req, res) => {
       instanceId,
       taskId,
       osPlatform,
+      availabilityZone
     });
 
   } catch (err) {

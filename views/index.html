@@ -27,6 +27,10 @@
         <td class="label">INSTANCE ID</td>
         <td class="value" id="instanceId">Loading...</td>
       </tr>
+      <tr>
+        <td class="label">AVAILABILITY ZONE</td>
+        <td class="value" id="availabilityZone">Loading...</td>
+      </tr>
     </table>
   </div>
 
@@ -40,12 +44,14 @@
         document.getElementById("instanceId").textContent = data.instanceId;
         document.getElementById("taskId").textContent = data.taskId;
         document.getElementById("osPlatform").textContent = data.osPlatform;
+        document.getElementById("availabilityZone").textContent = data.availabilityZone;
       } catch (err) {
         console.error("Error fetching metadata:", err);
         document.getElementById("launchType").textContent = "Error";
         document.getElementById("instanceId").textContent = "Error";
         document.getElementById("taskId").textContent = "Error";
         document.getElementById("osPlatform").textContent = "Error";
+        document.getElementById("availabilityZone").textContent = "Error";
       }
     }
 

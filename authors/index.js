@@ -23,7 +23,7 @@ app.use((req, res, next) => {
 });
 
 // Serve the main HTML file
-app.get('/authors', (req, res) => {
+app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'index.html'));
 });
 
@@ -33,18 +33,18 @@ app.get("/health", (req, res) => {
 });
 
 // Authors endpoint
-app.get("/authors/api", async (req, res) => {
+app.get("/api", async (req, res) => {
   try {
     res.json({
       authors: data.authors
     });
 
   } catch (err) {
-    console.error("Books fetch error:", err);
+    console.error("Authors fetch error:", err);
     res.status(500).json({ error: "Unable to fetch authors" });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}/authors`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });

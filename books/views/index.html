@@ -39,7 +39,7 @@
         const loadingDiv = document.getElementById("loading");
         loadingDiv.style.display = "block";
 
-        const res = await fetch("/books/api");
+        const res = await fetch("/api");
         const { books } = await res.json();
 
         loadingDiv.style.display = "none";

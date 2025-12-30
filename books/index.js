@@ -22,7 +22,7 @@ app.use((req, res, next) => {
 });
 
 // Serve the main HTML file
-app.get('/books', (req, res) => {
+app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'index.html'));
 });
 
@@ -32,7 +32,7 @@ app.get("/health", (req, res) => {
 });
 
 // Books endpoint
-app.get("/books/api", async (req, res) => {
+app.get("/api", async (req, res) => {
   try {
     res.json({
       books: data.books
@@ -45,5 +45,5 @@ app.get("/books/api", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}/books`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });

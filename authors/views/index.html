@@ -38,7 +38,7 @@
         const loadingDiv = document.getElementById("loading");
         loadingDiv.style.display = "block";
 
-        const res = await fetch("/authors/api");
+        const res = await fetch("/api");
         const { authors } = await res.json();
 
         loadingDiv.style.display = "none";

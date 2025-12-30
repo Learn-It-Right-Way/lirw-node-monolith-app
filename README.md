@@ -1,8 +1,20 @@
-# Node js monolith application
-Base Node.js monolith application built with Express.js, created primarily for the ECS video series to demonstrate various Amazon ECS features. Each branch corresponds to a specific ECS feature covered in the series, allowing step-by-step exploration alongside the videos.
+# ECS Advanced ALB Routing Demo
+A multi-service Node.js application demonstrating Advanced Application Load Balancer (ALB) routing with Amazon ECS. Consists of three Express.js services:
 
-## User Interface
-![Home](./public/ss/home.png)
+- **Books App**: Provides book data via REST API
+- **Authors App**: Provides author data via REST API  
+- **Dashboard App**: Frontend service that fetches and displays data from both Books and Authors services
+
+Built for showcasing ECS service discovery, load balancing, and inter-service communication patterns.
+
+## User Interfaces
+![Dashboard App](./dashboard/public/ss/dashboard-01.png)
+
+![Dashboard App](./dashboard/public/ss/dashboard-02.png)
+
+![Authors App](./authors/public/ss/authors.png)
+
+![Books App](./books/public/ss/books.png)
 
 ## Prerequisites 
 1. Install [HomeBrew](https://brew.sh/)
@@ -52,6 +64,10 @@ docker build -t node-monolith-app .
 2. Run Docker image
 ```bash
 docker run -p 3200:3200 node-monolith-app
+```
+3. Docker Compose Build
+```bash
+docker compose build
 ```
 
 ## Configure AWS CLI for IAM user

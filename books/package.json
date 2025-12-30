@@ -1,5 +1,5 @@
 {
-  "name": "express-monolith",
+  "name": "books",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -11,7 +11,6 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@aws-sdk/client-ecs": "^3.893.0",
     "express": "^5.1.0"
   }
 }

@@ -5,7 +5,7 @@ Base Node.js monolith application built with Express.js, created primarily for t
 #### Home
 ![Home](./public/ss/home.png)
 #### Search
-![Search](./public/ss/search-result.png)
+![Search](./public/ss/search-results.png)
 
 ## Prerequisites 
 1. Install [HomeBrew](https://brew.sh/)

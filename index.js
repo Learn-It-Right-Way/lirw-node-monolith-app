@@ -1,96 +1,84 @@
 const express = require('express');
 const fs = require("fs");
 const path = require('path');
-const { Worker } = require("worker_threads");
+const data = require('./books');
 
 const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Configs
 const PORT = process.env.PORT || 3200;
+const NORMAL_CPU_MS = 5;          // normal day
+const BLACK_FRIDAY_CPU_MS = 90 * 1000;  // heavy logic
+const MAX_CONCURRENT_WORK = 10;   // safety guard
+const { books } = data;
 
-// Keep track of active CPU load tasks
-let activeCpuLoad = 0;
+// State
+let activeWork = 0;
 
-// Load books.json
-const books = JSON.parse(
-  fs.readFileSync(path.join(process.cwd(), "books.json"), "utf-8")
-);
+const burnCpuChunked = (durationMs) => {
+  const end = Date.now() + durationMs;
+  activeWork++;
 
+  const work = () => {
+    if (Date.now() >= end) {
+      activeWork--;
+      return;
+    }
+
+    // CPU-heavy computation chunk
+    let x = 0;
+    for (let i = 0; i < 5e5; i++) {
+      x += Math.sqrt(i);
+    }
+
+    // Yield back to event loop
+    setImmediate(work);
+  }
+
+  work();
+}
+
+// Serve the main HTML file
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'index.html'));
+});
 
 // Health check endpoint
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok", message: "Service is healthy", uptime: process.uptime() });
 });
 
-
-// Home page
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'index.html'));
-});
-
-
 // Simulate high CPU usage
-app.get("/cpu-load", async (req, res) => {
-  const start = Date.now();
-  const durationSec = 300;
-  const durationMs = durationSec * 1000;
-
-  // Increment active load when a new CPU burn starts
-  activeCpuLoad += 1;
-  console.log(`[CPU LOAD START] Active load: ${activeCpuLoad}, Duration: ${durationSec}s`);
-
-  // Run CPU-intensive work in small chunks
-  function loop() {
-    if (Date.now() - start >= durationMs) {
-      activeCpuLoad -= 1; // decrement when done
-      console.log(`[CPU LOAD END] Active load: ${activeCpuLoad}`);
-      return;
-    }
-
-    // CPU work chunk
-    let x = 0;
-    for (let i = 0; i < 1e6; i++) {
-      x += Math.sqrt(i);
-    }
-
-    setImmediate(loop); // yield to event loop
-  }
-
-  loop();
-
-  res.json({ message: `CPU load started for ${durationSec}s` });
-});
-
-
-// Search endpoint with artificial delay (800-1500ms)
-app.get("/books/search", async (req, res) => {
+app.get("/books", async (req, res) => {
   const search = (req.query.search || "").toLowerCase();
+  const isBlackFriday = req.query.isBlackFriday === "true";
+  const cpuDuration = isBlackFriday ? BLACK_FRIDAY_CPU_MS : NORMAL_CPU_MS;
 
-  if (!search) {
-    return res.status(400).json({ error: "Query 'search' is required" });
+  console.log(`Received /books request. isBlackFriday=${isBlackFriday}, cpuDuration=${cpuDuration}ms`);
+
+  if (activeWork >= MAX_CONCURRENT_WORK) {
+    console.warn("Max concurrent work limit reached. Rejecting request.");
+    return res.status(503).json({ error: "Service under heavy load. Please try again later." });
   }
 
-  // Simulate processing delay
-  const delay = Math.floor(Math.random() * 700) + 800;
-  await new Promise((resolve) => setTimeout(resolve, delay));
+  console.log(`/books request starting. Active work count: ${activeWork}`);
 
-  // Simulate additional delay proportional to active CPU tasks
-  const delayMs = activeCpuLoad * 200;
-  console.log(`[SEARCH] Active CPU load: ${activeCpuLoad}, Adding delay: ${delayMs}ms`);
+  try {
+    burnCpuChunked(cpuDuration);
 
-  if (delayMs > 0) {
-    await new Promise((resolve) => setTimeout(resolve, delayMs));
-  }
-
-  const results = books.filter(
-    (book) =>
+    const results = books.filter(book =>
       book.title.toLowerCase().includes(search) ||
       book.description.toLowerCase().includes(search)
-  );
+    );
 
-  console.log(`[SEARCH RESULT] Found ${results.length} books for "${search}"`);
-  res.json({ query: search, results, count: results.length });
+    console.log(`/books request processed. Found ${results.length} results for search="${search}"`);
+    res.status(200).json({ query: search, results, count: results.length });
+  } catch (error) {
+    console.error("Error processing /books request:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
 });
 
 app.listen(PORT, () => {

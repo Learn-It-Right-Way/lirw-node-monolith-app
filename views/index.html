@@ -1,16 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Node.js Monolith App</title>
   <link rel="stylesheet" href="/style.css" />
 </head>
+
 <body>
   <div class="container">
     <h1>📚 Book Search</h1>
-    <input type="text" id="search" placeholder="Search books..." />
-    <button onclick="searchBooks()">Search</button>
+    <div>
+      <input type="text" id="search" placeholder="Search books..." />
+      <button onclick="searchBooks()">Search</button>
+    </div>
+    <div>
+      <input type="checkbox" id="blackFriday" />
+      <label for="blackFriday">Black Friday</label>
+    </div>
   </div>
 
   <div id="spinner" class="spinner-container">
@@ -23,7 +31,7 @@
   </div>
 
   <div id="error" class="error-card">
-    <p>⚠️ Error fetching books. Please try again later.</p>
+    <p id="error-msg"></p>
   </div>
 
   <p id="timer"></p>
@@ -35,11 +43,13 @@
     const spinnerEl = document.getElementById("spinner");
     const noResultsEl = document.getElementById("no-results");
     const errorEl = document.getElementById("error");
+    const errorMsgEl = document.getElementById("error-msg");
     const timerEl = document.getElementById("timer");
 
     async function searchBooks() {
       const start = performance.now();
       const search = document.getElementById("search").value.trim();
+      const isBlackFriday = document.getElementById("blackFriday").checked;
       resetStates();
 
       if (!search) {
@@ -51,10 +61,19 @@
       spinnerEl.classList.add("active");
 
       try {
-        const res = await fetch(`/books/search?search=${encodeURIComponent(search)}`);
+        const res = await fetch(`
+          /books?search=${encodeURIComponent(search)}&isBlackFriday=${isBlackFriday}
+        `);
         const data = await res.json();
+
         const end = performance.now();
         const duration = (end - start).toFixed(2);
+
+        if (!res.ok) {
+          throw new Error(
+            `⚠️ ${data?.error || "Service temporarily unavailable. Please try again."}`
+          );
+        }
 
         spinnerEl.classList.remove("active");
 
@@ -64,12 +83,13 @@
         }
 
         timerEl.innerText = `Response Time: ${duration} ms`;
-        resultsEl.innerHTML = data.results.map(createBookCard).join("");
+        resultsEl.innerHTML = data?.results?.map(createBookCard).join("");
 
       } catch (err) {
+        console.error(err);
         spinnerEl.classList.remove("active");
         errorEl.classList.add("active");
-        console.error(err);
+        errorMsgEl.innerText = err.message || "⚠️ Unexpected error occurred";
       }
     }
 
@@ -95,6 +115,8 @@
 
   </script>
 </body>
+
 </html>
 </body>
+
 </html>
